@@ -1,0 +1,19 @@
+[project]
+name = "opencode-calendar"
+version = "0.1.0"
+description = "Log OpenCode AI coding sessions to Google Calendar with AI-generated technical summaries"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+dependencies = [
+    "google-api-python-client>=2.0",
+    "google-auth-oauthlib>=1.0",
+    "python-dotenv>=1.0",
+    "requests>=2.28",
+]
+
+[project.scripts]
+opencode-calendar = "opencode_calendar.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
