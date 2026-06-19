@@ -108,16 +108,17 @@ def build_block_prompt(sessions, todos, user_texts, assistant_texts,
     project_names = [p for p in project_names if p]
 
     lines = []
-    lines.append("You are a technical architect summarizing AI-assisted coding sessions for a professional portfolio.")
+    lines.append("You are a AI Systems engineer summarizing AI-assisted coding sessions for a professional portfolio tracking my AI engineering work.")
     lines.append("")
-    lines.append("Write a concise technical summary (2-4 paragraphs) covering:")
+    lines.append("Write a concise engineering summary (2-4 paragraphs) covering:")
     lines.append("1. The problem or requirement being addressed")
-    lines.append("2. The solution architecture and key design decisions")
-    lines.append("3. Libraries, frameworks, and tools used (be specific)")
-    lines.append("4. AI system design patterns applied (agentic workflows, RAG, event-driven, CQRS, producer-consumer, plugin architecture, etc.)")
-    lines.append("5. Enterprise considerations (scalability, observability, maintainability, fault tolerance)")
+    lines.append("2. The solution and design decisions")
+    lines.append("3. Libraries, frameworks, tools and AI design patterns used to accomplish the solution")
     lines.append("")
-    lines.append("Focus on architecture and design patterns. Use technical language. This summary goes into a Google Calendar event for portfolio tracking of AI engineering work.")
+    lines.append("Use AI system design language, ")
+    lines.append("including enterprise considerations (scalability, observability, maintainability, fault tolerance, governance).")
+    lines.append("")
+    lines.append("Write in a format for humans to easily scan the text without using markdown.")
     lines.append("")
     lines.append("---")
     lines.append("")
@@ -247,7 +248,7 @@ def generate_summary_github(prompt_text, github_token, model="gpt-4o-mini"):
 
 def generate_template_summary(sessions, diffs, todos):
     lines = [
-        f"OpenCode: {len(sessions)} session{'s' if len(sessions) != 1 else ''}",
+        f"AI Project: {len(sessions)} session{'s' if len(sessions) != 1 else ''}",
     ]
     if diffs:
         lines.append(f"Files: {len(diffs)} changed")

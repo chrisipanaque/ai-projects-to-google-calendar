@@ -66,7 +66,7 @@ def find_block_by_id(service, event_id):
 
 def create_block_event(service, start_dt, end_dt, description, tz, title=None):
     if not title:
-        title = "OpenCode: In progress..."
+        title = "AI Project: In progress..."
     event = {
         "summary": title,
         "description": description,

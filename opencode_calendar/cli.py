@@ -156,7 +156,7 @@ def cmd_end_session(args):
         if existing_event:
             event = update_block_event(
                 service, existing_event["id"], end_dt, description, tz_name,
-                title="OpenCode: No sessions",
+                title="AI Project: No sessions",
             )
             print(f"\nEvent updated: {event.get('htmlLink')}")
         else:
@@ -200,7 +200,7 @@ def cmd_end_session(args):
 
     # Build event title
     if len(sessions) == 1:
-        title = f"OpenCode: {sessions[0]['title']}"
+        title = f"AI Project: {sessions[0]['title']}"
     else:
         project = None
         for d in dirs:
@@ -208,7 +208,7 @@ def cmd_end_session(args):
             if project:
                 break
         date_str = start_dt.strftime("%b %d")
-        title = f"OpenCode: {len(sessions)} sessions · {project or date_str}"
+        title = f"AI Project: {len(sessions)} sessions · {project or date_str}"
 
     if existing_event:
         print("  Updating existing event...")

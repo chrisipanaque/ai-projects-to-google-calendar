@@ -124,7 +124,7 @@ Creates a calendar event for an exact past time period. Useful for backfilling s
 # Sessions touched: redis-project/ and docs-site/
 opencode-calendar end-session --start "06:00" --end "09:00"
 ```
-All sessions across all directories are merged into one block summary. The title becomes `OpenCode: N sessions · project1, project2`.
+All sessions across all directories are merged into one block summary. The title becomes `AI Project: N sessions · project1, project2`.
 
 ---
 
@@ -246,7 +246,7 @@ Git remote URL is automatically captured from `git remote get-url origin`. Worki
 Here is what a finalized event looks like in Google Calendar:
 
 ```
-Title: OpenCode: 12 sessions · agentic-code-review-tool
+Title: AI Project: 12 sessions · agentic-code-review-tool
 
 Description:
 
