@@ -2,8 +2,27 @@ import os
 import subprocess
 import json
 import requests
+from datetime import datetime
 
 GITHUB_MODELS_ENDPOINT = "https://models.inference.ai.azure.com/chat/completions"
+
+BUILD_ARTIFACT_PREFIXES = (
+    "target/", "build/", "dist/", "node_modules/",
+    ".git/", "__pycache__/", ".next/", ".venv/",
+    "vendor/", "third_party/",
+)
+
+
+def _format_remote_url(url):
+    if not url:
+        return None
+    url = url.strip()
+    if url.startswith("git@"):
+        url = url.replace(":", "/")
+        url = url.replace("git@", "https://")
+    if url.endswith(".git"):
+        url = url[:-4]
+    return url
 
 
 def get_git_context(directories):
@@ -41,7 +60,7 @@ def get_git_context(directories):
                 capture_output=True, text=True, timeout=5,
             )
             if result.returncode == 0:
-                remote_url = result.stdout.strip()
+                remote_url = _format_remote_url(result.stdout.strip())
         except (subprocess.TimeoutExpired, FileNotFoundError):
             pass
 
@@ -61,6 +80,73 @@ def get_git_context(directories):
         return {"branch": branch, "remote_url": remote_url, "commits": commits}
 
     return {"branch": None, "remote_url": None, "commits": []}
+
+
+def get_git_diffs_in_range(directories, start_dt, end_dt):
+    if not directories:
+        return []
+    status_map = {"A": "added", "M": "modified", "D": "deleted", "R": "modified"}
+    all_files = {}
+
+    for directory in directories:
+        if not directory or not os.path.isdir(directory):
+            continue
+        try:
+            subprocess.run(
+                ["git", "-C", directory, "rev-parse", "--git-dir"],
+                capture_output=True, text=True, timeout=5,
+            )
+        except (subprocess.CalledProcessError, FileNotFoundError, TimeoutError):
+            continue
+
+        since_str = start_dt.strftime("%Y-%m-%d %H:%M:%S")
+        until_str = end_dt.strftime("%Y-%m-%d %H:%M:%S")
+
+        try:
+            result = subprocess.run(
+                ["git", "-C", directory, "log", "--since", since_str,
+                 "--until", until_str, "--name-status", "--diff-filter=AMDR",
+                 "--format="],
+                capture_output=True, text=True, timeout=10,
+            )
+            if result.returncode == 0 and result.stdout.strip():
+                for line in result.stdout.strip().split("\n"):
+                    line = line.strip()
+                    if not line:
+                        continue
+                    parts = line.split("\t", 1)
+                    if len(parts) == 2:
+                        status_char, file = parts
+                        status = status_map.get(status_char, "modified")
+                        if not file.startswith(BUILD_ARTIFACT_PREFIXES):
+                            all_files[file] = status
+        except (subprocess.TimeoutExpired, FileNotFoundError):
+            pass
+
+        try:
+            result = subprocess.run(
+                ["git", "-C", directory, "diff", "--name-status",
+                 "--diff-filter=AMDR"],
+                capture_output=True, text=True, timeout=5,
+            )
+            if result.returncode == 0 and result.stdout.strip():
+                for line in result.stdout.strip().split("\n"):
+                    line = line.strip()
+                    if not line:
+                        continue
+                    parts = line.split("\t", 1)
+                    if len(parts) == 2:
+                        status_char, file = parts
+                        status = status_map.get(status_char, "modified")
+                        if not file.startswith(BUILD_ARTIFACT_PREFIXES):
+                            all_files[file] = status
+        except (subprocess.TimeoutExpired, FileNotFoundError):
+            pass
+
+    return [
+        {"file": f, "additions": 0, "deletions": 0, "status": s}
+        for f, s in all_files.items()
+    ]
 
 
 def extract_project_name(directory):

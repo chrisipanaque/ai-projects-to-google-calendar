@@ -208,6 +208,7 @@ def get_diffs_for_session_ids(db_path: str, session_ids: list):
     placeholders = ",".join("?" for _ in session_ids)
     conn = _connect(db_path)
     cur = conn.cursor()
+
     cur.execute(
         f"""SELECT json_extract(d.value, '$.file') as file,
                   json_extract(d.value, '$.additions') as additions,
@@ -219,6 +220,14 @@ def get_diffs_for_session_ids(db_path: str, session_ids: list):
         session_ids,
     )
     rows = cur.fetchall()
+
+    cur.execute(
+        f"""SELECT data FROM part
+            WHERE session_id IN ({placeholders})
+              AND json_extract(data, '$.type') = 'patch'""",
+        session_ids,
+    )
+    patch_rows = cur.fetchall()
     conn.close()
 
     seen = set()
@@ -235,6 +244,28 @@ def get_diffs_for_session_ids(db_path: str, session_ids: list):
                 "deletions": int(row["deletions"] or 0),
                 "status": row["status"] or "modified",
             })
+
+    for r in patch_rows:
+        try:
+            data = json.loads(r["data"])
+            files = data.get("files", [])
+            for file in files:
+                if not file:
+                    continue
+                basename = os.path.basename(file)
+                if basename.startswith(BUILD_ARTIFACT_PREFIXES):
+                    continue
+                if file not in seen:
+                    seen.add(file)
+                    diffs.append({
+                        "file": file,
+                        "additions": 0,
+                        "deletions": 0,
+                        "status": "modified",
+                    })
+        except json.JSONDecodeError:
+            continue
+
     return diffs
 
 

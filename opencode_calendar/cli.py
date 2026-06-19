@@ -24,7 +24,7 @@ from opencode_calendar.db import (
     get_agent_flow,
     list_recent_sessions,
 )
-from opencode_calendar.summarizer import generate_block_summary, extract_project_name, get_git_context
+from opencode_calendar.summarizer import generate_block_summary, extract_project_name, get_git_context, get_git_diffs_in_range
 from opencode_calendar.calendar_client import (
     _auth as auth_google,
     find_most_recent_block,
@@ -173,6 +173,16 @@ def cmd_end_session(args):
     assistant_texts = get_assistant_key_texts(db_path, session_ids)
     reasoning_parts = get_reasoning_parts(db_path, session_ids)
     diffs = get_diffs_for_session_ids(db_path, session_ids)
+    git_diffs = get_git_diffs_in_range(dirs, start_dt, end_dt)
+    if git_diffs:
+        existing_files = {d["file"] for d in diffs}
+        merged = 0
+        for gd in git_diffs:
+            if gd["file"] not in existing_files:
+                diffs.append(gd)
+                merged += 1
+        if merged:
+            print(f"  Git diffs merged: +{merged} files ({len(diffs)} total)")
     dep_files = get_dep_files_for_session_ids(db_path, session_ids)
     tool_summary = get_tool_call_summary(db_path, session_ids)
     tool_details = get_tool_call_details(db_path, session_ids)
