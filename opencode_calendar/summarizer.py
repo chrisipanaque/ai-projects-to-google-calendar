@@ -164,9 +164,6 @@ def build_block_prompt(sessions, todos, user_texts, assistant_texts,
     total_tokens_in = 0
     total_tokens_out = 0
     total_tokens_reason = 0
-    total_additions = 0
-    total_deletions = 0
-    total_files = 0
     agents_used = set()
     models_used = set()
     session_titles = []
@@ -176,9 +173,6 @@ def build_block_prompt(sessions, todos, user_texts, assistant_texts,
         total_tokens_in += s["tokens_input"]
         total_tokens_out += s["tokens_output"]
         total_tokens_reason += (s.get("tokens_reasoning") or 0)
-        total_additions += s["summary_additions"]
-        total_deletions += s["summary_deletions"]
-        total_files += s["summary_files"]
         agents_used.add(s["agent"])
         session_titles.append(s["title"])
         try:
@@ -196,15 +190,20 @@ def build_block_prompt(sessions, todos, user_texts, assistant_texts,
     lines = []
     lines.append("You are a AI Systems engineer summarizing AI-assisted coding sessions.")
     lines.append("")
-    lines.append("Write a concise engineering summary (2-4 paragraphs) covering:")
-    lines.append("1. The problem or requirement being addressed")
-    lines.append("2. The solution and design decisions")
-    lines.append("3. Libraries, code, and AI design patterns used to accomplish the solution")
+    lines.append("Write a concise engineering documentation (2-4 paragraphs) covering:")
+    lines.append("1. The problems or requirements being addressed")
+    lines.append("2. The solutions and design decisions")
+    lines.append("")
+    lines.append("Using a list format, list all the libraries, code, and AI design patterns used to accomplish the solutions")
     lines.append("")
     lines.append("Writing using AI system design language and using a format for humans to easily scan the text without using fluff. Avoid markdown")
     lines.append("")
     lines.append("---")
     lines.append("")
+
+    total_additions = sum(d.get("additions", 0) or 0 for d in (diffs or []))
+    total_deletions = sum(d.get("deletions", 0) or 0 for d in (diffs or []))
+    total_files = len(diffs) if diffs else 0
 
     lines.append(f"Work Block: {len(sessions)} session{'s' if len(sessions) != 1 else ''} · {', '.join(project_names[:3])}")
     lines.append(f"Duration: {duration_min} minutes")

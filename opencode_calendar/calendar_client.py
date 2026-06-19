@@ -138,19 +138,17 @@ def build_block_description(summary_text, git_context, sessions, diffs, tool_sum
     total_duration = 0
     total_tokens_in = 0
     total_tokens_out = 0
-    total_add = 0
-    total_del = 0
-    total_files = 0
     for s in sessions:
         total_duration += (s["time_updated"] - s["time_created"])
         total_tokens_in += s["tokens_input"]
         total_tokens_out += s["tokens_output"]
-        total_add += s["summary_additions"]
-        total_del += s["summary_deletions"]
-        total_files += s["summary_files"]
 
     duration_min = round(total_duration / 60000.0, 1)
     agents = sorted(set(s["agent"] for s in sessions))
+
+    total_add = sum(d.get("additions", 0) or 0 for d in (diffs or []))
+    total_del = sum(d.get("deletions", 0) or 0 for d in (diffs or []))
+    total_files = len(diffs) if diffs else 0
 
     parts.append(f"Duration: {duration_min} min | Sessions: {len(sessions)} | Agents: {', '.join(agents)}")
     parts.append(f"Files: +{total_add}/-{total_del} across {total_files} files")
