@@ -188,15 +188,15 @@ def build_block_prompt(sessions, todos, user_texts, assistant_texts,
     project_names = [p for p in project_names if p]
 
     lines = []
-    lines.append("You are a AI Systems engineer summarizing AI-assisted coding sessions.")
+    lines.append("You are a AI Systems engineer summarizing AI-assisted coding sessions for engineering documentation.")
     lines.append("")
     lines.append("Write a concise engineering documentation (2-4 paragraphs) covering:")
     lines.append("1. The problems or requirements being addressed")
     lines.append("2. The solutions and design decisions")
     lines.append("")
-    lines.append("Using a list format, list all the libraries, code, and AI design patterns used to accomplish the solutions")
+    lines.append("Using a list format, list all the libraries, and AI system design patterns used to accomplish the solutions")
     lines.append("")
-    lines.append("Writing using AI system design language and using a format for humans to easily scan the text without using fluff. Avoid markdown")
+    lines.append("Write in a format for humans to easily scan the document without using fluff. Avoid markdown")
     lines.append("")
     lines.append("---")
     lines.append("")
