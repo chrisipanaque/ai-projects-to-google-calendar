@@ -24,7 +24,7 @@ from opencode_calendar.db import (
     get_agent_flow,
     list_recent_sessions,
 )
-from opencode_calendar.summarizer import generate_block_summary, extract_project_name
+from opencode_calendar.summarizer import generate_block_summary, extract_project_name, get_git_context
 from opencode_calendar.calendar_client import (
     _auth as auth_google,
     find_most_recent_block,
@@ -187,7 +187,7 @@ def cmd_end_session(args):
         sessions, todos, user_texts, assistant_texts,
         reasoning_parts, diffs, dep_files,
         tool_summary, tool_details, agent_flow,
-        git_context=None,
+        git_context=get_git_context(dirs),
         dirs=dirs,
         config=config,
     )
