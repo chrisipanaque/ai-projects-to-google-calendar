@@ -120,13 +120,13 @@ def build_block_description(summary_text, git_context, sessions, diffs, tool_sum
     parts = []
 
     parts.append(summary_text)
-    parts.append("")
-
-    parts.append("---")
+    # parts.append("")
+    # parts.append("---")
     parts.append("")
 
     if git_context.get("remote_url"):
         parts.append(f"Repository: {git_context['remote_url']}")
+        parts.append("")
     if git_context.get("branch"):
         parts.append(f"Branch: {git_context['branch']}")
     if git_context.get("commits"):
@@ -171,7 +171,7 @@ def build_block_description(summary_text, git_context, sessions, diffs, tool_sum
 
     parts.append("")
     parts.append(CALENDAR_MARKER)
-    parts.append(f"Timezone: {tz_name}")
+    # parts.append(f"Timezone: {tz_name}")
 
     return "\n".join(parts)
 
